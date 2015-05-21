@@ -2,6 +2,9 @@ require 'cloud_controller/diego/process_guid'
 
 module VCAP::CloudController
   module Diego
+    class ConflictError < StandardError
+    end
+
     class NsyncClient
       def initialize(config)
         @url = URI(config[:diego_nsync_url]) if config[:diego_nsync_url]
@@ -18,10 +21,14 @@ module VCAP::CloudController
 
         begin
           tries ||= 3
+          conflict_tries ||= 2
           response = http_client.put(path, desire_message, REQUEST_HEADERS)
+          raise ConflictError if response.code == '409'
         rescue Errno::ECONNREFUSED => e
           retry unless (tries -= 1).zero?
           raise Errors::ApiError.new_from_details('RunnerUnavailable', e)
+        rescue ConflictError
+          retry unless (conflict_tries -= 1).zero?
         end
 
         logger.info('desire.app.response', process_guid: process_guid, response_code: response.code)

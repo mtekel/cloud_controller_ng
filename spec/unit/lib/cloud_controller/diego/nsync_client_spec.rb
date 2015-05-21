@@ -43,6 +43,14 @@ module VCAP::CloudController::Diego
           end
         end
 
+        context 'when the endpoint fails' do
+          it 'retries and eventually raises RunnerError' do
+            stub = stub_request(:put, desire_app_url).to_return(status: 409, body: '')
+            expect { client.desire_app(process_guid, desire_message) }.to raise_error(VCAP::Errors::ApiError, /desire app failed: 409/i)
+            expect(stub).to have_been_requested.times(2)
+          end
+        end
+
         describe 'timing out' do
           let(:http) { double(:http) }
           let(:expected_timeout) { 10 }
