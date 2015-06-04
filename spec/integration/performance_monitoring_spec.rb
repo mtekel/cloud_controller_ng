@@ -60,7 +60,6 @@ describe 'Cloud controller', type: :integration, monitoring: true do
         # newrelic needs a moment to process the information - so give it a bit
         # of time
         sleep(1)
-        binding.pry
         newrelic_response = make_get_request('/newrelic', {}, port)
         expect(newrelic_response.code).to eq('200')
         expect(newrelic_response.body).to include('/info')
