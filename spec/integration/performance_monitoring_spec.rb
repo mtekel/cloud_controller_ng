@@ -14,9 +14,11 @@ describe 'Cloud controller', type: :integration, monitoring: true do
   }
 
   before :each do
-    FileUtils::mkdir_p "/tmp/newrelic"
-    puts `ls /tmp`
     FileUtils.rm_f('/tmp/newrelic/development.log')
+    FileUtils.mkdir_p "/tmp/newrelic"
+    puts `ls /tmp/newrelic`
+    FileUtils.touch('/tmp/newrelic/development.log')
+    puts `ls /tmp/newrelic`
     start_nats(debug: false)
     opts = {
       debug: false,
