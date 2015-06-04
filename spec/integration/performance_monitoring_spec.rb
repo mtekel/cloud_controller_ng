@@ -17,8 +17,6 @@ describe 'Cloud controller', type: :integration, monitoring: true do
     FileUtils.rm_f('/tmp/newrelic/development.log')
     FileUtils.mkdir_p '/tmp/newrelic'
     puts `ls /tmp/newrelic`
-    FileUtils.touch('/tmp/newrelic/development.log')
-    puts `ls /tmp/newrelic`
     start_nats(debug: false)
     opts = {
       debug: false,
@@ -56,9 +54,13 @@ describe 'Cloud controller', type: :integration, monitoring: true do
         info_response = make_get_request('/info', {}, port)
         expect(info_response.code).to eq('200')
 
+        info_response = make_get_request('/info', {}, port)
+        expect(info_response.code).to eq('200')
+
         # newrelic needs a moment to process the information - so give it a bit
         # of time
         sleep(1)
+        binding.pry
         newrelic_response = make_get_request('/newrelic', {}, port)
         expect(newrelic_response.code).to eq('200')
         expect(newrelic_response.body).to include('/info')
