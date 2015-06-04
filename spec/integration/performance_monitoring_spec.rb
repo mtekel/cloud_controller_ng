@@ -74,6 +74,7 @@ describe 'Cloud controller', type: :integration, monitoring: true do
       it 'loads new relic' do
         # give newrelic some time to start up on slower machines
         sleep(1)
+        p `ls /tmp/newrelic`
         expect(File).to exist('/tmp/newrelic/development.log')
       end
     end
