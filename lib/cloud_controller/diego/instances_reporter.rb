@@ -82,6 +82,9 @@ module VCAP::CloudController
           info = {
             'state' => instance[:state],
             'stats' => {
+              'name' => app.name,
+              'uris' => app.uris,
+              'uptime' => instance[:since],
               'mem_quota'  => app[:memory] * 1024 * 1024,
               'disk_quota' => app[:disk_quota] * 1024 * 1024,
               'usage'      => {

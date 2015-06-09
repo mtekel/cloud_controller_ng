@@ -38,11 +38,11 @@ module VCAP::CloudController
 
           expect(tps_client).to have_received(:lrp_instances).with(app)
           expect(result).to eq(
-                                {
-                                    0 => { state: 'RUNNING', details: 'some-details', since: 1 },
-                                    1 => { state: 'CRASHED', since: 3 },
-                                    2 => { state: 'STARTING', since: 5 },
-                                })
+            {
+              0 => { state: 'RUNNING', details: 'some-details', since: 1 },
+              1 => { state: 'CRASHED', since: 3 },
+              2 => { state: 'STARTING', since: 5 },
+            })
         end
 
         it 'returns DOWN instances for instances that tps does not report within range of app.instances' do
@@ -237,7 +237,7 @@ module VCAP::CloudController
       end
 
       describe '#stats_for_app' do
-        it 'stubs out stuff for now' do
+        it 'returns the stats reported for the application' do
           result = subject.stats_for_app(app)
 
           expect(result).to eq(
@@ -246,6 +246,9 @@ module VCAP::CloudController
                 'state' => 'RUNNING',
                 'details' => 'some-details',
                 'stats' => {
+                  'name' => app.name,
+                  'uris' => app.uris,
+                  'uptime' => instances_to_return[0][:since],
                   'mem_quota'  => app[:memory] * 1024 * 1024,
                   'disk_quota' => app[:disk_quota] * 1024 * 1024,
                   'usage'      => {
@@ -258,6 +261,9 @@ module VCAP::CloudController
               1 => {
                 'state' => 'CRASHED',
                 'stats' => {
+                  'name' => app.name,
+                  'uris' => app.uris,
+                  'uptime' => instances_to_return[2][:since],
                   'mem_quota'  => app[:memory] * 1024 * 1024,
                   'disk_quota' => app[:disk_quota] * 1024 * 1024,
                   'usage'      => {
@@ -270,6 +276,9 @@ module VCAP::CloudController
               2 => {
                 'state' => 'STARTING',
                 'stats' => {
+                  'name' => app.name,
+                  'uris' => app.uris,
+                  'uptime' => instances_to_return[4][:since],
                   'mem_quota'  => app[:memory] * 1024 * 1024,
                   'disk_quota' => app[:disk_quota] * 1024 * 1024,
                   'usage'      => {
@@ -302,6 +311,9 @@ module VCAP::CloudController
             result = subject.stats_for_app(app)
 
             expect(result[0]['stats']).to eq({
+              'name' => app.name,
+              'uris' => app.uris,
+              'uptime' => instances_to_return[0][:since],
               'mem_quota'  => app[:memory] * 1024 * 1024,
               'disk_quota' => app[:disk_quota] * 1024 * 1024,
               'usage'      => {
