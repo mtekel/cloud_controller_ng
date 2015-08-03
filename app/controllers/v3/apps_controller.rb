@@ -33,7 +33,8 @@ module VCAP::CloudController
       validate_allowed_params(params)
 
       pagination_options = PaginationOptions.from_params(params)
-      facets = params.slice('guids', 'space_guids', 'organization_guids', 'names')
+      invalid_param!(pagination_options.errors.full_messages) unless pagination_options.valid?
+      facets = params.slice('guids', 'space_guids', 'organization_guids', 'names', 'droplet_guids')
 
       if membership.admin?
         paginated_apps = AppListFetcher.new.fetch_all(pagination_options, facets)
@@ -244,6 +245,7 @@ module VCAP::CloudController
         'guids' => ->(v) { v.is_a? Array },
         'organization_guids' => ->(v) { v.is_a? Array },
         'space_guids' => ->(v) { v.is_a? Array },
+        'droplet_guids' => ->(v) { v.is_a? Array },
         'page' => ->(v) { v.to_i > 0 },
         'per_page' => ->(v) { v.to_i > 0 },
         'order_by' => ->(v) { %w(created_at updated_at).include?(v) },

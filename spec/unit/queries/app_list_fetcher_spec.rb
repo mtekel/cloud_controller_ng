@@ -4,19 +4,22 @@ module VCAP::CloudController
   describe AppListFetcher do
     describe '#fetch' do
       let(:space) { Space.make }
-      let(:app) { AppModel.make(space_guid: space.guid) }
-      let(:sad_app) { AppModel.make(space_guid: space.guid) }
+      let(:app) { AppModel.make(space_guid: space.guid, droplet_guid: desirable_droplet.guid) }
+      let(:sad_app) { AppModel.make(space_guid: space.guid, droplet_guid: undesirable_droplet.guid) }
       let(:org) { space.organization }
       let(:fetcher) { described_class.new }
       let(:space_guids) { [space.guid] }
       let(:pagination_options) { PaginationOptions.new({}) }
       let(:facets) { {} }
+      let(:undesirable_droplet) { Droplet.make(app_guid: sad_app.guid) }
+      let(:desirable_droplet) { Droplet.make(app_guid: app.guid) }
 
       apps = nil
 
       before do
         app.save
         sad_app.save
+
         apps = fetcher.fetch(pagination_options, facets, space_guids)
       end
 
@@ -48,7 +51,7 @@ module VCAP::CloudController
 
       context 'when the app space_guids are provided' do
         let(:facets) { { 'space_guids' => [space.guid] } }
-        let(:sad_app) { AppModel.make }
+        let(:sad_app) { AppModel.make(guid: "HI I AM AN APP GUID") }
 
         it 'returns all of the desired apps' do
           expect(apps.records).to include(app)
@@ -75,6 +78,15 @@ module VCAP::CloudController
         it 'returns all of the desired apps' do
           expect(apps.records).to include(app)
           expect(apps.records).to_not include(sad_app)
+        end
+      end
+
+      context 'when the droplet guids are provided' do
+        let(:facets) { { 'droplet_guids' => [desirable_droplet.guid] } }
+
+        it 'returns all of the desired apps' do
+          expect(apps.records).to include(desirable_droplet)
+          expect(apps.records).to_not include(undesirable_droplet)
         end
       end
     end
