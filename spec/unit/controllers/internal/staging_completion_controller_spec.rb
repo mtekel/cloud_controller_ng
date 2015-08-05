@@ -36,7 +36,7 @@ module VCAP::CloudController
     let(:detected_buildpack) { 'detected_buildpack' }
     let(:execution_metadata) { 'execution_metadata' }
 
-    let(:url) { "/internal/staging/#{staging_guid}/completed" }
+    let(:url) { "/v3/internal/staging/#{staging_guid}/completed" }
 
     let(:staging_response) do
       {

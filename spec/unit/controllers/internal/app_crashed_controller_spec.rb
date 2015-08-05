@@ -14,7 +14,7 @@ module VCAP::CloudController
 
     let(:process_guid) { Diego::ProcessGuid.from(diego_app.guid, 'some-version-guid') }
 
-    let(:url) { "/internal/apps/#{process_guid}/crashed" }
+    let(:url) { "/v3/internal/apps/#{process_guid}/crashed" }
 
     let(:crashed_request) do
       {
@@ -100,7 +100,7 @@ module VCAP::CloudController
 
       let(:process_guid) { Diego::ProcessGuid.from(dea_app.guid, 'some-version-guid') }
 
-      let(:url) { "/internal/apps/#{process_guid}/crashed" }
+      let(:url) { "/v3/internal/apps/#{process_guid}/crashed" }
 
       it 'fails with a 403' do
         post url, MultiJson.dump(crashed_request)

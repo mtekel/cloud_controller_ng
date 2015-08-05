@@ -31,7 +31,7 @@ module VCAP::CloudController
       raise ApiError.new_from_details('BadQueryParameter', e.message)
     end
 
-    get '/internal/bulk/apps', :bulk_apps
+    get '/v3/internal/bulk/apps', :bulk_apps
 
     def filtered_bulk_apps
       raise ApiError.new_from_details('MessageParseError', 'Missing request body') if body.length == 0
@@ -45,7 +45,7 @@ module VCAP::CloudController
       raise ApiError.new_from_details('MessageParseError', e.message)
     end
 
-    post '/internal/bulk/apps', :filtered_bulk_apps
+    post '/v3/internal/bulk/apps', :filtered_bulk_apps
 
     private
 

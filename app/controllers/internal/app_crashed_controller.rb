@@ -15,7 +15,7 @@ module VCAP::CloudController
       end
     end
 
-    post '/internal/apps/:process_guid/crashed', :crashed
+    post '/v3/internal/apps/:process_guid/crashed', :crashed
 
     def crashed(process_guid)
       crash_payload = crashed_request

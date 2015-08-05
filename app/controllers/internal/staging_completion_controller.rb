@@ -25,7 +25,7 @@ module VCAP::CloudController
       @stagers = dependencies.fetch(:stagers)
     end
 
-    post '/internal/staging/:staging_guid/completed', :completed
+    post '/v3/internal/staging/:staging_guid/completed', :completed
 
     def completed(staging_guid)
       staging_response = read_body

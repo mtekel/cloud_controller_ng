@@ -30,10 +30,10 @@ module VCAP::CloudController
       5.times { |i| make_diego_app(state: 'STARTED') }
     end
 
-    describe 'GET', '/internal/bulk/apps' do
+    describe 'GET', '/v3/internal/bulk/apps' do
       context 'without credentials' do
         it 'rejects the request as unauthorized' do
-          get '/internal/bulk/apps'
+          get '/v3/internal/bulk/apps'
           expect(last_response.status).to eq(401)
         end
       end
@@ -44,7 +44,7 @@ module VCAP::CloudController
         end
 
         it 'rejects the request as unauthorized' do
-          get '/internal/bulk/apps'
+          get '/v3/internal/bulk/apps'
           expect(last_response.status).to eq(401)
         end
       end
@@ -55,7 +55,7 @@ module VCAP::CloudController
         end
 
         it 'requires a token in query string' do
-          get '/internal/bulk/apps', {
+          get '/v3/internal/bulk/apps', {
                                        'batch_size' => 20,
                                    }
 
@@ -63,7 +63,7 @@ module VCAP::CloudController
         end
 
         it 'returns a populated token for the initial request (which has an empty bulk token)' do
-          get '/internal/bulk/apps', {
+          get '/v3/internal/bulk/apps', {
                                        'batch_size' => 3,
                                        'token' => '{}',
                                    }
@@ -73,7 +73,7 @@ module VCAP::CloudController
         end
 
         it 'returns apps in the response body' do
-          get '/internal/bulk/apps', {
+          get '/v3/internal/bulk/apps', {
                                        'batch_size' => 20,
                                        'token' => { id: app_table_entry(2).id }.to_json,
                                    }
@@ -120,7 +120,7 @@ module VCAP::CloudController
           end
 
           it 'uses the desire app message format' do
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => 100,
                                          'token' => { id: 0 }.to_json,
                                      }
@@ -137,7 +137,7 @@ module VCAP::CloudController
 
         context 'when a format=cache parameter is set' do
           it 'uses the cache data format' do
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => 1,
                                          'format' => 'fingerprint',
                                          'token' => { id: 0 }.to_json,
@@ -164,7 +164,7 @@ module VCAP::CloudController
           end
 
           it 'only returns staged apps' do
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => App.count,
                                          'token' => '{}',
                                      }
@@ -180,7 +180,7 @@ module VCAP::CloudController
           end
 
           it 'does not return apps in the STOPPED state' do
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => App.count,
                                          'token' => '{}',
                                      }
@@ -197,7 +197,7 @@ module VCAP::CloudController
           end
 
           it 'only returns diego apps' do
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => App.count,
                                          'token' => '{}',
                                        }
@@ -219,7 +219,7 @@ module VCAP::CloudController
           end
 
           it 'does return docker apps' do
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => App.count,
                                          'token' => '{}',
                                        }
@@ -232,7 +232,7 @@ module VCAP::CloudController
         describe 'pagination' do
           it 'respects the batch_size parameter' do
             [3, 5].each { |size|
-              get '/internal/bulk/apps', {
+              get '/v3/internal/bulk/apps', {
                                            'batch_size' => size,
                                            'token' => { id: 0 }.to_json,
                                          }
@@ -243,7 +243,7 @@ module VCAP::CloudController
           end
 
           it 'returns non-intersecting apps when token is supplied' do
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => 2,
                                          'token' => { id: 0 }.to_json,
                                        }
@@ -253,7 +253,7 @@ module VCAP::CloudController
             saved_apps = decoded_response['apps'].dup
             expect(saved_apps.size).to eq(2)
 
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => 2,
                                          'token' => MultiJson.dump(decoded_response['token']),
                                        }
@@ -273,7 +273,7 @@ module VCAP::CloudController
 
             token = '{}'
             while apps.size < total_size
-              get '/internal/bulk/apps', {
+              get '/v3/internal/bulk/apps', {
                                            'batch_size' => 2,
                                            'token' => MultiJson.dump(token),
                                        }
@@ -284,7 +284,7 @@ module VCAP::CloudController
             end
 
             expect(apps.size).to eq(total_size)
-            get '/internal/bulk/apps', {
+            get '/v3/internal/bulk/apps', {
                                          'batch_size' => 2,
                                          'token' => MultiJson.dump(token),
                                      }
@@ -296,10 +296,10 @@ module VCAP::CloudController
       end
     end
 
-    describe 'POST' '/internal/bulk/apps' do
+    describe 'POST', '/v3/internal/bulk/apps' do
       context 'without credentials' do
         it 'rejects the request as unauthorized' do
-          post '/internal/bulk/apps', {}
+          post '/v3/internal/bulk/apps', {}
 
           expect(last_response.status).to eq(401)
         end
@@ -311,7 +311,7 @@ module VCAP::CloudController
         end
 
         it 'rejects the request as unauthorized' do
-          post '/internal/bulk/apps'
+          post '/v3/internal/bulk/apps'
 
           expect(last_response.status).to eq(401)
         end
@@ -324,7 +324,7 @@ module VCAP::CloudController
 
         context 'without a body' do
           it 'is an invalid request' do
-            post '/internal/bulk/apps'
+            post '/v3/internal/bulk/apps'
 
             expect(last_response.status).to eq(400)
           end
@@ -333,7 +333,7 @@ module VCAP::CloudController
         context 'with a body' do
           context 'with invalid json' do
             it 'is an invalid request' do
-              post '/internal/bulk/apps', 'foo'
+              post '/v3/internal/bulk/apps', 'foo'
 
               expect(last_response.status).to eq(400)
             end
@@ -341,7 +341,7 @@ module VCAP::CloudController
 
           context 'with an empty list' do
             it 'returns an empty list' do
-              post '/internal/bulk/apps', [].to_json
+              post '/v3/internal/bulk/apps', [].to_json
 
               expect(last_response.status).to eq(200)
               expect(decoded_response).to eq([])
@@ -353,7 +353,7 @@ module VCAP::CloudController
               diego_apps = runners.diego_apps(100, 0)
 
               guids = diego_apps.map { |app| Diego::ProcessGuid.from_app(app) }
-              post '/internal/bulk/apps', guids.to_json
+              post '/v3/internal/bulk/apps', guids.to_json
 
               expect(last_response.status).to eq(200)
               expect(decoded_response.length).to eq(5)
@@ -372,7 +372,7 @@ module VCAP::CloudController
                 diego_apps = runners.diego_apps(100, 0)
 
                 guids = App.all.map { |app| Diego::ProcessGuid.from_app(app) }
-                post '/internal/bulk/apps', guids.to_json
+                post '/v3/internal/bulk/apps', guids.to_json
 
                 expect(last_response.status).to eq(200)
                 expect(decoded_response.length).to eq(diego_apps.length)

@@ -55,7 +55,7 @@ module CloudController
         URI::HTTP.build(
           host: @blobstore_options[:blobstore_host],
           port: @blobstore_options[:blobstore_port],
-          path: "/internal/v2/droplets/#{app.guid}/#{app.droplet_hash}/download",
+          path: "/v3/internal/droplets/#{app.guid}/#{app.droplet_hash}/download",
         ).to_s
       end
 
