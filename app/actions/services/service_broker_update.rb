@@ -13,6 +13,10 @@ module VCAP::CloudController
       broker = ServiceBroker.find(guid: guid)
       return nil unless broker
 
+      if params[:space_guid]
+
+      end
+
       ServiceBroker.db.transaction do
         old_broker = broker.clone
         broker.set(params)

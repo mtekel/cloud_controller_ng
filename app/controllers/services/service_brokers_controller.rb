@@ -48,7 +48,10 @@ module VCAP::CloudController
     end
 
     def update(guid)
-      validate_access(:update, ServiceBroker)
+      broker = ServiceBroker.find(guid: guid)
+      return HTTP::NOT_FOUND unless broker
+
+      validate_access(:update, broker)
       update_action = ServiceBrokerUpdate.new(
         @service_manager,
         @services_event_repository,
