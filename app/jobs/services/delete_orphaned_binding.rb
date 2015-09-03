@@ -2,6 +2,8 @@ module VCAP::CloudController
   module Jobs
     module Services
       class OrphanedBindingInfo
+        attr_accessor :guid, :service_instance_guid, :app_guid
+
         def initialize(binding)
           @guid                  = binding.guid
           @service_instance_guid = binding.service_instance.guid
@@ -17,7 +19,7 @@ module VCAP::CloudController
           binding.service_plan     = OpenStruct.new(broker_provided_id: @plan_id)
           binding
         end
-       end
+      end
 
       class DeleteOrphanedBinding < VCAP::CloudController::Jobs::CCJob
         attr_accessor :name, :client_attrs, :binding_info

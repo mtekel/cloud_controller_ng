@@ -232,7 +232,7 @@ module VCAP::CloudController
     end
 
     def bind_route(instance_guid, route_guid)
-      logger.debug "cc.association.add", guid: instance_guid, assocation: :routes, other_guid: route_guid
+      logger.debug 'cc.association.add', guid: instance_guid, assocation: :routes, other_guid: route_guid
       @request_attrs = { route: route_guid }
 
       route = Route.where(guid: route_guid).eager(:service_instance).all.first
@@ -252,7 +252,6 @@ module VCAP::CloudController
     rescue ServiceInstanceBindingManager::ServiceInstanceNotBindable
       raise VCAP::Errors::ApiError.new_from_details('UnbindableService')
     end
-
 
     private
 

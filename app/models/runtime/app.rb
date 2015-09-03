@@ -445,7 +445,7 @@ module VCAP::CloudController
     end
 
     def uris
-      routes.map &:uri
+      routes.map(&:uri)
     end
 
     def mark_as_staged

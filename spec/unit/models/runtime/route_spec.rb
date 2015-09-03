@@ -338,6 +338,7 @@ module VCAP::CloudController
         it 'errors if the service instance is not a route service' do
           service_instance = ManagedServiceInstance.make
           routing_service_instance = ManagedServiceInstance.make(:routing)
+          routing_service_instance.space = route.space
 
           route.service_instance = service_instance
 

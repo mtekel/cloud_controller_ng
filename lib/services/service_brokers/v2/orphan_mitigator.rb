@@ -19,7 +19,7 @@ module VCAP::Services
         end
 
         def cleanup_failed_bind(client_attrs, service_binding)
-          OrphanedBindingInfo.new(service_binding)
+          binding_info = VCAP::CloudController::Jobs::Services::OrphanedBindingInfo.new(service_binding)
           unbind_job = VCAP::CloudController::Jobs::Services::DeleteOrphanedBinding.new(
             'service-instance-unbind',
             client_attrs,

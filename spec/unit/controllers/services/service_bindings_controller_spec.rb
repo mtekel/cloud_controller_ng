@@ -238,6 +238,7 @@ module VCAP::CloudController
           expected_body    = {
             service_id: instance.service.broker_provided_id,
             plan_id: instance.service_plan.broker_provided_id,
+            app_guid: app_obj.guid,
             hooks: { app_guid: app_obj.guid }
           }
 

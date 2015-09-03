@@ -1,4 +1,5 @@
 require 'actions/services/service_binding_delete'
+require 'models/services/route_binding'
 
 module VCAP::CloudController
   class ServiceInstanceBindingManager

@@ -2357,7 +2357,7 @@ module VCAP::CloudController
         service_plan        = binding.service_plan
         service             = binding.service
         service_binding_uri = service_binding_url(binding)
-        expected_body       = { service_id: service.broker_provided_id, plan_id: service_plan.broker_provided_id, hooks: { route: route.uri } }
+        expected_body       = { service_id: service.broker_provided_id, plan_id: service_plan.broker_provided_id, app_guid: nil, hooks: { route: route.uri } }
         expect(a_request(:put, service_binding_uri).with(body: expected_body)).to have_been_made
       end
 
@@ -2367,8 +2367,8 @@ module VCAP::CloudController
         it 'raises an error' do
           put "/v2/service_instances/#{service_instance.guid}/routes/#{route.guid}", {}, headers_for(developer)
           expect(last_response.status).to eq(400)
-          expect(JSON.parse(last_response.body)['description'])
-            .to include('This service does not support route binding')
+          expect(JSON.parse(last_response.body)['description']).
+            to include('This service does not support route binding')
         end
 
         it 'does NOT send a bind request to the service broker' do
@@ -2384,8 +2384,8 @@ module VCAP::CloudController
         it 'raises an error' do
           put "/v2/service_instances/#{service_instance.guid}/routes/random-guid", {}, headers_for(developer)
           expect(last_response.status).to eq(404)
-          expect(JSON.parse(last_response.body)['description'])
-            .to include('route could not be found')
+          expect(JSON.parse(last_response.body)['description']).
+            to include('route could not be found')
         end
       end
 
@@ -2402,8 +2402,8 @@ module VCAP::CloudController
 
           put "/v2/service_instances/#{service_instance.guid}/routes/#{route.guid}", {}, headers_for(developer)
           expect(last_response.status).to eq(400)
-          expect(JSON.parse(last_response.body)['description'])
-            .to eq('A route may only be bound to a single service instance')
+          expect(JSON.parse(last_response.body)['description']).
+            to eq('A route may only be bound to a single service instance')
 
           get "/v2/service_instances/#{service_instance.guid}/routes", {}, headers_for(developer)
           expect(last_response.status).to eq(200)
@@ -2476,8 +2476,8 @@ module VCAP::CloudController
         it 'raises an error' do
           put "/v2/service_instances/#{service_instance.guid}/routes/#{route.guid}", {}, headers_for(developer)
           expect(last_response.status).to eq(400)
-          expect(JSON.parse(last_response.body)['description'])
-            .to include('The service instance and the route are in different spaces.')
+          expect(JSON.parse(last_response.body)['description']).
+            to include('The service instance and the route are in different spaces.')
         end
 
         it 'does NOT send a bind request to the service broker' do
