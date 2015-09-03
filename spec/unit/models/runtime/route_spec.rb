@@ -352,7 +352,7 @@ module VCAP::CloudController
 
     describe 'Serialization' do
       it { is_expected.to export_attributes :host, :domain_guid, :space_guid, :path, :service_instance_guid }
-      it { is_expected.to import_attributes :host, :domain_guid, :space_guid, :app_guids, :path, :service_instance_guid }
+      it { is_expected.to import_attributes :host, :domain_guid, :space_guid, :app_guids, :path }
     end
 
     describe 'instance methods' do
@@ -398,6 +398,31 @@ module VCAP::CloudController
               )
               expect(r.fqdn).to eq(domain.name)
             end
+          end
+        end
+      end
+
+      describe '#uri' do
+        context 'for a non-nil path' do
+          it 'should return the fqdn with path' do
+            r = Route.make(
+              host: 'www',
+              domain: domain,
+              space: space,
+              path: '/path'
+            )
+            expect(r.uri).to eq("www.#{domain.name}/path")
+          end
+        end
+
+        context 'for a nil path' do
+          it 'should return the fqdn' do
+            r = Route.make(
+              host: 'www',
+              domain: domain,
+              space: space
+            )
+            expect(r.uri).to eq("www.#{domain.name}")
           end
         end
       end

@@ -66,8 +66,6 @@ GEM
     backports (3.6.4)
     beefcake (1.0.0)
     builder (3.2.2)
-    byebug (4.0.5)
-      columnize (= 0.9.0)
     cf-message-bus (0.3.4)
       eventmachine (~> 1.0.0)
       nats (>= 0.5.0, < 0.6)
@@ -79,8 +77,6 @@ GEM
     cloudfront-signer (2.1.1)
     codeclimate-test-reporter (0.4.2)
       simplecov (>= 0.7.1, < 1.0.0)
-    coderay (1.1.0)
-    columnize (0.9.0)
     cookiejar (0.3.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
@@ -192,7 +188,6 @@ GEM
       beefcake (~> 1.0.0)
     machinist (1.0.6)
     membrane (1.1.0)
-    method_source (0.8.2)
     mime-types (2.4.3)
     mini_portile (0.6.2)
     minitest (5.7.0)
@@ -222,13 +217,6 @@ GEM
     pg (0.16.0)
     posix-spawn (0.3.9)
     powerpack (0.0.9)
-    pry (0.10.1)
-      coderay (~> 1.1.0)
-      method_source (~> 0.8.1)
-      slop (~> 3.4)
-    pry-byebug (3.1.0)
-      byebug (~> 4.0)
-      pry (~> 0.10)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
@@ -341,7 +329,6 @@ DEPENDENCIES
   allowy
   astrolabe
   awesome_print
-  byebug
   cf-message-bus (~> 0.3.0)
   cf-registrar (~> 1.0.2)!
   cf-uaa-lib (~> 3.1.0)!
@@ -364,7 +351,6 @@ DEPENDENCIES
   nokogiri (~> 1.6.2)
   parallel_tests
   pg (= 0.16.0)
-  pry-byebug
   rack-test
   rake
   rfc822

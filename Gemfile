@@ -43,7 +43,7 @@ group :db do
 end
 
 group :operations do
-  gem 'pry-byebug'
+  # gem 'pry-byebug'
   gem 'awesome_print'
 end
 
@@ -67,5 +67,5 @@ end
 group :development do
   gem 'roodi'
   gem 'ruby-debug-ide'
-  gem 'byebug'
+  # gem 'byebug'
 end
