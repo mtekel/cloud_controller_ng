@@ -35,6 +35,23 @@ module VCAP::CloudController
       end
     end
 
+    def delete_route_service_instance_binding(route, instance)
+      raise ServiceInstanceNotBindable unless instance.bindable?
+
+      delete_action = RouteBindingDelete.new
+      deletion_job = Jobs::DeleteActionJob.new(RouteBinding, service_binding.guid, delete_action)
+      delete_and_audit_job = Jobs::AuditEventJob.new(
+        deletion_job,
+        @services_event_repository,
+        :record_service_binding_event,
+        :delete,
+        route_binding.class,
+        route_binding.guid
+      )
+
+      enqueue_deletion_job(delete_and_audit_job, params)
+    end
+
     def create_app_service_instance_binding(service_instance_guid, app_guid, binding_attrs, arbitrary_parameters)
       service_instance = ServiceInstance.first(guid: service_instance_guid)
       raise ServiceInstanceNotFound unless service_instance

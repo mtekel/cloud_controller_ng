@@ -195,6 +195,11 @@ module VCAP::CloudController
     type              { 'web' }
   end
 
+  RouteBinding.blueprint do
+    service_instance  { ManagedServiceInstance.make }
+    route { Route.make }
+  end
+
   ServiceBinding.blueprint do
     credentials       { Sham.service_credentials }
     service_instance  { ManagedServiceInstance.make }

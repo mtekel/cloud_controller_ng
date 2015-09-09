@@ -280,7 +280,7 @@ module VCAP::CloudController
       before_update(instance)
 
       binding_manager = ServiceInstanceBindingManager.new(@services_event_repository, self, logger)
-      binding_manager.create_route_service_instance_binding(route, instance)
+      binding_manager.delete_route_service_instance_binding(route, instance)
 
       after_update(instance)
     end

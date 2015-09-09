@@ -208,7 +208,6 @@ module VCAP::CloudController::RestController
     end
 
     # Validate that the current logged in user can have access to the target object.
-    e
     # Raises an exception if the user does not have rights to perform
     # the operation on the object.
     #
