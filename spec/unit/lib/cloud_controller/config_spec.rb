@@ -378,7 +378,7 @@ module VCAP::CloudController
 
       context 'when newrelic is enabled' do
         let(:config) do
-          @test_config.merge(newrelic_enabled: true, name: 'test_0', index: 2)
+          @test_config.merge(newrelic_enabled: true)
         end
 
         before do
@@ -389,12 +389,6 @@ module VCAP::CloudController
         it 'enables GC profiling' do
           Config.configure_components(config)
           expect(GC::Profiler.enabled?).to eq(true)
-        end
-
-        it 'reports the correct hostname' do
-          require 'newrelic_rpm'
-          Config.configure_components(config)
-          expect(::NewRelic::Agent::Hostname.get).to eq('test_0-2')
         end
       end
 
