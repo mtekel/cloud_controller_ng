@@ -21,7 +21,7 @@ module VCAP::CloudController
 
     one_to_many :service_bindings, before_add: :validate_service_binding
     one_to_many :service_keys
-    one_to_many :routes
+    one_to_many :route_bindings
 
     many_to_one :space, after_set: :validate_space
     many_to_one :service_plan_sti_eager_load,

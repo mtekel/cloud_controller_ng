@@ -1,5 +1,4 @@
 require 'actions/services/service_binding_delete'
-require 'models/services/route_binding'
 
 module VCAP::CloudController
   class ServiceInstanceBindingManager
@@ -18,16 +17,18 @@ module VCAP::CloudController
     def create_route_service_instance_binding(route, instance)
       raise ServiceInstanceNotBindable unless instance.bindable?
 
-      binding = RouteBinding.new(route, instance)
-      @access_validator.validate_access(:create, binding)
+      binding = RouteBinding.new
+      binding.route = route
+      binding.service_instance = instance
 
-      route.service_instance = instance
-      raise Sequel::ValidationFailed.new(route) unless route.valid?
+      @access_validator.validate_access(:update, instance)
+
+      raise Sequel::ValidationFailed.new(binding) unless binding.valid?
 
       bind(binding, {})
 
       begin
-        route.save
+        binding.save
       rescue => e
         @logger.error "Failed to save binding for route: #{route.guid} and service instance: #{instance.guid} with exception: #{e}"
         mitigate_orphan(binding)
@@ -35,21 +36,13 @@ module VCAP::CloudController
       end
     end
 
-    def delete_route_service_instance_binding(route, instance)
-      raise ServiceInstanceNotBindable unless instance.bindable?
-
-      delete_action = RouteBindingDelete.new
-      deletion_job = Jobs::DeleteActionJob.new(RouteBinding, service_binding.guid, delete_action)
-      delete_and_audit_job = Jobs::AuditEventJob.new(
-        deletion_job,
-        @services_event_repository,
-        :record_service_binding_event,
-        :delete,
-        route_binding.class,
-        route_binding.guid
-      )
-
-      enqueue_deletion_job(delete_and_audit_job, params)
+    def delete_route_service_instance_binding(binding)
+      @access_validator.validate_access(:update, binding.service_instance)
+      errors = ServiceBindingDelete.new.delete [binding]
+      unless errors.empty?
+        @logger.error "Failed to delete binding with guid: #{binding.guid} with errors: #{errors.map(&:message).join(',')}"
+        raise errors.first
+      end
     end
 
     def create_app_service_instance_binding(service_instance_guid, app_guid, binding_attrs, arbitrary_parameters)
@@ -96,7 +89,12 @@ module VCAP::CloudController
 
     def bind(binding, arbitrary_parameters)
       raise_if_locked(binding.service_instance)
-      binding.service_instance.client.bind(binding, arbitrary_parameters: arbitrary_parameters)
+      binding.client.bind(binding, arbitrary_parameters: arbitrary_parameters) # binding.bind(arbitrary_parameters)
+    end
+
+    def unbind(binding)
+      raise_if_locked(binding.service_instance)
+      binding.client.unbind(binding) # binding.unbind
     end
 
     def async?(params)

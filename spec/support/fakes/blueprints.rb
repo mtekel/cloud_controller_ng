@@ -196,7 +196,7 @@ module VCAP::CloudController
   end
 
   RouteBinding.blueprint do
-    service_instance  { ManagedServiceInstance.make }
+    service_instance  { ManagedServiceInstance.make(:routing) }
     route { Route.make }
   end
 

@@ -5,7 +5,6 @@ module VCAP::CloudController
       attribute :path, String, default: nil
       to_one :domain
       to_one :space
-      to_one :service_instance, exclude_in: [:create, :update]
       to_many :apps
     end
 

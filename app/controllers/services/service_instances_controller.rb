@@ -17,7 +17,6 @@ module VCAP::CloudController
       to_one :service_plan
       to_many :service_bindings
       to_many :service_keys
-      to_many :routes, route_for: [:get, :put, :delete], exclude_in: [:create, :update]
     end
 
     query_parameters :name, :space_guid, :service_plan_guid, :service_binding_guid, :gateway_name, :organization_guid, :service_key_guid
@@ -234,25 +233,28 @@ module VCAP::CloudController
     define_messages
     define_routes
 
-    def add_related(guid, name, other_guid)
-      return super(guid, name, other_guid) if name != :routes
-
-      bind_route(guid, other_guid)
+    get '/v2/service_instances/:service_instance_guid/routes', :enumerate_routes
+    def enumerate_routes(guid)
+      service_instance = find_guid_and_validate_access(:read_permissions, guid, ServiceInstance)
+      routes_dataset = Route.select_all(:routes)
+                         .join(:route_bindings, route_id: :id, service_instance_id: service_instance.id)
+      collection_renderer.render_json(
+        RoutesController,
+        routes_dataset,
+        "/v2/service_instances/#{guid}/routes",
+        @opts,
+        {}
+      )
     end
 
-    def remove_related(guid, name, other_guid)
-      return super(guid, name, other_guid) if name != :routes
-
-      unbind_route(guid, other_guid)
-    end
-
+    put '/v2/service_instances/:service_instance_guid/routes/:route_guid', :bind_route
     def bind_route(instance_guid, route_guid)
       logger.debug 'cc.association.add', guid: instance_guid, assocation: :routes, other_guid: route_guid
       @request_attrs = { route: route_guid }
 
-      route = Route.where(guid: route_guid).eager(:service_instance).all.first
+      route = Route.find(guid: route_guid)
       raise Errors::ApiError.new_from_details('RouteNotFound', route_guid) if route.nil?
-      raise Errors::ApiError.new_from_details('RouteAlreadyBoundToServiceInstance') unless route.service_instance.nil?
+      raise Errors::ApiError.new_from_details('RouteAlreadyBoundToServiceInstance') unless route.route_binding.nil?
 
       instance = find_guid(instance_guid)
 
@@ -266,6 +268,12 @@ module VCAP::CloudController
       [HTTP::CREATED, object_renderer.render_json(self.class, instance, @opts)]
     rescue ServiceInstanceBindingManager::ServiceInstanceNotBindable
       raise VCAP::Errors::ApiError.new_from_details('UnbindableService')
+    end
+
+    def remove_related(guid, name, other_guid)
+      return super(guid, name, other_guid) if name != :routes
+
+      unbind_route(guid, other_guid)
     end
 
     def unbind_route(instance_guid, route_guid)

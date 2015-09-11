@@ -9,9 +9,9 @@ module VCAP::CloudController
     class InvalidOrganizationRelation < VCAP::Errors::InvalidRelation; end
     class DockerDisabled < VCAP::Errors::InvalidRelation; end
 
+    one_to_one :route_binding
     many_to_one :domain
     many_to_one :space, after_set: :validate_changed_space
-    many_to_one :service_instance
 
     many_to_many :app_models, join_table: :apps_v3_routes
 
@@ -22,7 +22,7 @@ module VCAP::CloudController
 
     add_association_dependencies apps: :nullify
 
-    export_attributes :host, :path, :domain_guid, :space_guid, :service_instance_guid
+    export_attributes :host, :path, :domain_guid, :space_guid
     import_attributes :host, :path, :domain_guid, :space_guid, :app_guids
 
     def fqdn
@@ -74,8 +74,6 @@ module VCAP::CloudController
       validate_domain
       validate_total_routes
       errors.add(:host, :domain_conflict) if domains_match?
-
-      validate_service_instance
     end
 
     def validate_path
@@ -191,18 +189,6 @@ module VCAP::CloudController
 
       if !org_routes_policy.allow_more_routes?(1)
         errors.add(:organization, :total_routes_exceeded)
-      end
-    end
-
-    def validate_service_instance
-      return unless service_instance
-
-      unless service_instance.service.requires.include? 'route_forwarding'
-        errors.add(:service_instance, :route_binding_not_allowed)
-      end
-
-      unless service_instance.space == self.space
-        errors.add(:service_instance, :space_mismatch)
       end
     end
   end

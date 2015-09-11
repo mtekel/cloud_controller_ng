@@ -2395,6 +2395,75 @@ module VCAP::CloudController
       end
     end
 
+    describe 'GET', '/v2/service_instances/:service_instance_guid/routes' do
+      let(:space)   { Space.make }
+      let(:manager) { make_manager_for_space(space) }
+      let(:auditor) { make_auditor_for_space(space) }
+      let(:developer) { make_developer_for_space(space) }
+
+      context 'when the user is not a member of the space this instance exists in' do
+        let(:space_a)   { Space.make }
+        let(:instance)  { ManagedServiceInstance.make(space: space_a) }
+
+        def verify_forbidden(user)
+          get "/v2/service_instances/#{instance.guid}/routes", {}, headers_for(user)
+          expect(last_response.status).to eql(403)
+        end
+
+        it 'returns the forbidden code for developers' do
+          verify_forbidden developer
+        end
+
+        it 'returns the forbidden code for managers' do
+          verify_forbidden manager
+        end
+
+        it 'returns the forbidden code for auditors' do
+          verify_forbidden auditor
+        end
+      end
+
+      context 'when the user is a member of the space this instance exists in' do
+        let(:instance_a)  { ManagedServiceInstance.make(:routing, space: space) }
+        let(:instance_b)  { ManagedServiceInstance.make(:routing, space: space) }
+        let(:route_a) { Route.make(space: space) }
+        let(:route_b) { Route.make(space: space) }
+        let(:route_c) { Route.make(space: space) }
+        let!(:route_binding_a) { RouteBinding.make(route: route_a, service_instance: instance_a) }
+        let!(:route_binding_b) { RouteBinding.make(route: route_b, service_instance: instance_a) }
+        let!(:route_binding_c) { RouteBinding.make(route: route_c, service_instance: instance_b) }
+
+        context 'when the user is not of developer role' do
+          it 'return an empty routes list if the user is of space manager role' do
+            get "/v2/service_instances/#{instance_a.guid}/routes", {}, headers_for(manager)
+            expect(last_response.status).to eql(403)
+            expect(MultiJson.load(last_response.body)['description']).to eq('You are not authorized to perform the requested action')
+          end
+
+          it 'return an empty routes list if the user is of space auditor role' do
+            get "/v2/service_instances/#{instance_a.guid}/routes", {}, headers_for(auditor)
+            expect(last_response.status).to eql(403)
+            expect(MultiJson.load(last_response.body)['description']).to eq('You are not authorized to perform the requested action')
+          end
+        end
+
+        context 'when the user is of developer role' do
+          it 'returns the routes that belong to the service instance' do
+            get "/v2/service_instances/#{instance_a.guid}/routes", {}, headers_for(developer)
+            expect(last_response.status).to eql(200)
+            expect(decoded_response.fetch('total_results')).to eq(2)
+            expect(decoded_response.fetch('resources').first.fetch('metadata').fetch('guid')).to eq(route_a.guid)
+            expect(decoded_response.fetch('resources')[1].fetch('metadata').fetch('guid')).to eq(route_b.guid)
+
+            get "/v2/service_instances/#{instance_b.guid}/routes", {}, headers_for(developer)
+            expect(last_response.status).to eql(200)
+            expect(decoded_response.fetch('total_results')).to eq(1)
+            expect(decoded_response.fetch('resources').first.fetch('metadata').fetch('guid')).to eq(route_c.guid)
+          end
+        end
+      end
+    end
+
     describe 'PUT', '/v2/service_instances/:service_instance_guid/routes/:route_guid' do
       let(:space) { Space.make }
       let(:developer) { make_developer_for_space(space) }
@@ -2423,7 +2492,7 @@ module VCAP::CloudController
         put "/v2/service_instances/#{service_instance.guid}/routes/#{route.guid}", {}, headers_for(developer)
         expect(last_response.status).to eq(201)
 
-        binding             = VCAP::CloudController::RouteBinding.new(route, service_instance)
+        binding             = RouteBinding.last
         service_plan        = binding.service_plan
         service             = binding.service
         service_binding_uri = service_binding_url(binding)
@@ -2438,7 +2507,7 @@ module VCAP::CloudController
           put "/v2/service_instances/#{service_instance.guid}/routes/#{route.guid}", {}, headers_for(developer)
           expect(last_response.status).to eq(400)
           expect(JSON.parse(last_response.body)['description']).
-            to include('This service does not support route binding')
+            to include('does not allow')
         end
 
         it 'does NOT send a bind request to the service broker' do
@@ -2511,9 +2580,7 @@ module VCAP::CloudController
         it 'does not send a bind request to broker' do
           put "/v2/service_instances/#{service_instance.guid}/routes/#{route.guid}", {}, headers_for(developer)
 
-          binding             = VCAP::CloudController::RouteBinding.new(route, service_instance)
-          service_binding_uri = service_binding_url(binding)
-          expect(a_request(:put, service_binding_uri)).to_not have_been_made
+          expect(a_request(:put, bind_url(service_instance))).to_not have_been_made
         end
 
         it 'does not trigger orphan mitigation' do

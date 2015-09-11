@@ -1,13 +1,11 @@
 Sequel.migration do
   change do
-    create_table :route_binding do
+    create_table :route_bindings do
       VCAP::Migration.common(self)
 
-      Integer :route_id, null: false
-      foreign_key [:route_id], :route, name: :fk_route_bindings_route_id
+      foreign_key :route_id, :routes
 
-      Integer :service_instance_id, null: false
-      foreign_key [:service_instance_id], :service_instances, name: :fk_route_bindings_service_instance_id
+      foreign_key :service_instance_id, :service_instances
     end
   end
 end
