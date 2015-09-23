@@ -228,10 +228,18 @@ module CloudController
           describe 'file permissions' do
             before do
               upload_tmpfile(client, sha_of_content)
+              @original_umask = File.umask
+              File.umask(0022)
             end
+
+            after do
+              File.umask(@original_umask)
+            end
+
 
             context 'when not specifying a mode' do
               it 'does not change permissions on the file' do
+
                 destination = File.join(local_dir, 'some_directory_to_place_file', 'downloaded_file')
                 client.download_from_blobstore(sha_of_content, destination)
 
