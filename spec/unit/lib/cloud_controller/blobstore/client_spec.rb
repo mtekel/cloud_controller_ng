@@ -238,7 +238,6 @@ module CloudController
 
             context 'when not specifying a mode' do
               it 'does not change permissions on the file' do
-
                 destination = File.join(local_dir, 'some_directory_to_place_file', 'downloaded_file')
                 client.download_from_blobstore(sha_of_content, destination)
 
