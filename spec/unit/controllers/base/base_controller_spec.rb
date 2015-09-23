@@ -78,6 +78,16 @@ module VCAP::CloudController
       I18n.locale = nil # reset locale after running tests that change it
     end
 
+    describe '"validations"' do
+      it 'casts common parameters' do
+
+      end
+
+      it 'does not for v3' do
+
+      end
+    end
+
     describe '#dispatch' do
       context 'when the dispatch is successful' do
         let(:token_decoder) { double(:decoder) }

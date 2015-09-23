@@ -11,6 +11,10 @@ module VCAP::CloudController::RestController
     end
 
     describe '#parse' do
+      it 'will not try to cast the value if legacy is false' do
+        expect(common_params.parse({ 'page' => 'moose' }, legacy: false)).to eq({ page: 'moose' })
+      end
+
       it 'treats inline-relations-depth as an Integer and symbolizes the key' do
         expect(common_params.parse({ 'inline-relations-depth' => '123' })).to eq({ inline_relations_depth: 123 })
       end

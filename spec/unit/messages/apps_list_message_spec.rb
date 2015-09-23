@@ -126,6 +126,12 @@ module VCAP::CloudController
             expect(message.errors[:page].length).to eq 1
           end
 
+          it 'validates it is an integer' do
+            message = AppsListMessage.new page: '1.1'
+            expect(message).to be_invalid
+            expect(message.errors[:page].length).to eq 1
+          end
+
           it 'is invalid if page is 0' do
             message = AppsListMessage.new page: 0
             expect(message).to be_invalid
@@ -142,6 +148,12 @@ module VCAP::CloudController
         describe 'per_page' do
           it 'validates it is a number' do
             message = AppsListMessage.new per_page: 'not number'
+            expect(message).to be_invalid
+            expect(message.errors[:per_page].length).to eq 1
+          end
+
+          it 'validates it is an integer' do
+            message = AppsListMessage.new per_page: '1.1'
             expect(message).to be_invalid
             expect(message.errors[:per_page].length).to eq 1
           end
