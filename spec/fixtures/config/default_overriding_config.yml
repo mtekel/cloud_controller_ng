@@ -151,3 +151,6 @@ allow_app_ssh_access: true
 
 broker_client_timeout_seconds: 120
 broker_client_default_async_poll_interval_seconds: 120
+expiration:
+  num_of_valid_packages_per_app_to_store: 10
+  num_of_staged_droplets_per_app_to_store: 10

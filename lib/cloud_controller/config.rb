@@ -177,6 +177,11 @@ module VCAP::CloudController
 
         :db_encryption_key => String,
 
+        optional(:expiration) => {
+          optional(:num_of_valid_packages_per_app_to_store) => Integer,
+          optional(:num_of_staged_droplets_per_app_to_store) => Integer
+        },
+
         optional(:flapping_crash_count_threshold) => Integer,
 
         optional(:varz_port) => Integer,
@@ -340,6 +345,9 @@ module VCAP::CloudController
         config[:staging][:minimum_staging_file_descriptor_limit] ||= 16384
         config[:broker_client_timeout_seconds] ||= 60
         config[:broker_client_default_async_poll_interval_seconds] ||= 60
+        config[:expiration] ||= {}
+        config[:expiration][:num_of_valid_packages_per_app_to_store] ||= 5
+        config[:expiration][:num_of_staged_droplets_per_app_to_store] ||= 5
 
         unless config.key?(:users_can_select_backend)
           config[:users_can_select_backend] = true
