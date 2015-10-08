@@ -235,7 +235,7 @@ module VCAP::Services
 
               begin
                 parsed_url = URI.parse(url)
-                is_valid = parsed_url.is_a?(URI::HTTPS)
+                is_valid = parsed_url.is_a?(URI::HTTPS) && parsed_url.host
               rescue URI::InvalidURIError
                 is_valid = false
               end
