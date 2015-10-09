@@ -18,7 +18,7 @@ module VCAP::CloudController
     many_to_one :package, class: 'VCAP::CloudController::PackageModel', key: :package_guid, primary_key: :guid, without_guid_generation: true
     many_to_one :app, class: 'VCAP::CloudController::AppModel', key: :app_guid, primary_key: :guid, without_guid_generation: true
     one_through_one :space, join_table: AppModel.table_name, left_key: :guid, left_primary_key: :app_guid, right_primary_key: :guid, right_key: :space_guid
-
+    many_to_one :stack
     encrypt :environment_variables, salt: :salt, column: :encrypted_environment_variables
     serializes_via_json :environment_variables
 
@@ -43,6 +43,10 @@ module VCAP::CloudController
 
     def mark_as_staged
       self.state = STAGED_STATE
+    end
+
+    def stack_name
+      stack.name if stack
     end
   end
 end

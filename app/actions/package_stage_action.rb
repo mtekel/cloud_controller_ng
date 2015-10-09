@@ -24,6 +24,7 @@ module VCAP::CloudController
       raise InvalidPackage.new('Cannot stage package whose type is not bits.') if package.type != PackageModel::BITS_TYPE
 
       staging_details = get_staging_details(package, buildpack_info, staging_message)
+      stack = Stack.find(name: get_stack(staging_message.stack))
 
       droplet = DropletModel.create(
         app_guid:              package.app.guid,
@@ -31,6 +32,7 @@ module VCAP::CloudController
         buildpack:             buildpack_info.to_s,
         package_guid:          package.guid,
         state:                 DropletModel::PENDING_STATE,
+        stack:                 stack,
         environment_variables: staging_details.environment_variables
       )
       staging_details.droplet = droplet

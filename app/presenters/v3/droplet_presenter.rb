@@ -32,8 +32,11 @@ module VCAP::CloudController
           type: DEFAULT_HASHING_ALGORITHM,
           value: droplet.droplet_hash
         },
-        buildpack:              droplet.buildpack,
-        error:         droplet.error,
+        lifecycle: {
+          stack:                 droplet.stack_name,
+          buildpack:             droplet.buildpack
+        },
+        error:                  droplet.error,
         procfile:               droplet.procfile,
         environment_variables:  droplet.environment_variables || {},
         created_at:             droplet.created_at,
