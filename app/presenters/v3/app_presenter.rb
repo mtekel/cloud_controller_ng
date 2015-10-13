@@ -33,6 +33,7 @@ module VCAP::CloudController
         buildpack:               app.buildpack,
         created_at:              app.created_at,
         updated_at:              app.updated_at,
+        lifecycle:               app.lifecycle,
         environment_variables:   app.environment_variables || {},
         links:                   build_links(app)
       }

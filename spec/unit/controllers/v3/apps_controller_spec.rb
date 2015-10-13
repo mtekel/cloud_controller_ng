@@ -339,6 +339,23 @@ module VCAP::CloudController
           end
         end
       end
+
+      context 'when the space developer requests lifecycle data' do
+        let(:req_body) do
+          {
+            name: 'some-name',
+            relationships: { space: { guid: space_guid } },
+            buildpack: 'http://some.url',
+            lifecycle: { data: { buildpack: nil, stack: nil } }
+          }.to_json
+        end
+
+        it 'moves the stack and buildpack data under the lifecycle object' do
+          response_code, response = apps_controller.create
+          expect(response_code).to eq 201
+          expect(response).to eq(app_response)
+        end
+      end
     end
 
     describe '#update' do
