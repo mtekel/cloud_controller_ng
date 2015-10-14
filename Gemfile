@@ -29,6 +29,7 @@ gem 'newrelic_rpm', '3.12.0.288'
 gem 'clockwork', require: false
 gem 'activemodel'
 gem 'statsd-ruby'
+gem 'rack-cors'
 
 # We need to use https for git urls as the git protocol is blocked by various
 # firewalls

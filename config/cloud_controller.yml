@@ -1,4 +1,10 @@
 ---
+allowed_cors_domains:
+- http://*.appspot.com
+- http://*.inblue.net
+- http://talkoncorners.com
+- http://borrowedheaven.org
+
 local_route: 127.0.0.1
 external_port: 8181
 pid_filename: /tmp/cloud_controller.pid
@@ -57,14 +63,18 @@ logging:
 
 loggregator:
   router: "127.0.0.1:3456"
+  shared_secret: "loggregatorsecret"
   url: "ws://loggregator.vcap.me:80"
 
 doppler:
   enabled: false
 
-db:
+db: &db
+#  database: postgres://ccadmin:admin@10.244.0.30:5524/ccdb
+  database: postgres://postgres@localhost:5432/ccdb
   max_connections: 32
   pool_timeout: 10
+  log_level: debug2
 
 uaa:
   url: "http://localhost:8080/uaa"

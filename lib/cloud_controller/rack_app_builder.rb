@@ -1,4 +1,6 @@
 require 'vcap_request_id'
+require 'cors'
+require 'rack/cors'
 
 module VCAP::CloudController
   class RackAppBuilder
@@ -10,6 +12,20 @@ module VCAP::CloudController
       Rails.application.initialize!
 
       Rack::Builder.new do
+        # use Rack::Cors do
+        #   allow do
+        #     origins config[:allowed_cors_domains].map { |d| /^#{Regexp.quote(d).gsub('\*', '.*?')}$/ }
+        #
+        #     resource '*',
+        #       methods:     [:get, :post, :put, :delete],
+        #       headers:     :any,
+        #       expose:      ['x-cf-warnings', 'x-app-staging-log', 'x-vcap-request-id', 'location', 'range'],
+        #       max_age:     900,
+        #       credentials: true,
+        #       vary:        ['Origin']
+        #   end
+        # end
+        use CloudFoundry::Middleware::Cors, config[:allowed_cors_domains].map { |d| /^#{Regexp.quote(d).gsub('\*', '.*?')}$/ }
         use CloudFoundry::Middleware::VcapRequestId
         use Rack::CommonLogger, logger if logger
 
